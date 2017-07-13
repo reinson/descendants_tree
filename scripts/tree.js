@@ -33,9 +33,41 @@ function checkIfDone(){
   else
     drawTree(publicTree);
 }
-checkIfDone();
+//checkIfDone();
 
-function drawTree(treeData) {
+d3.csv("json/suguvõsa_andmed2.csv", function(error,data){
+    var directAncestors = data.filter(function(d){
+        return !d["Abikaasa kood"]
+    });
+
+    var directAncestorCodes = directAncestors.map(function(d){return d.kood});
+    directAncestors.forEach(function(d){
+        var mom = directAncestorCodes.indexOf(d["Ema kood"]) > -1;
+        var dad = directAncestorCodes.indexOf(d["Isa kood"]) > -1;
+        if(( mom && dad ) || (!mom && !dad)) {
+            console.log("Problem with ancestor codes!",d)
+        } else {
+            d.directAncestorCode = mom ? d["Ema kood"] : d["Isa kood"];
+        }
+    });
+
+    var root = d3.stratify()
+        .id(function(d) { return d.kood; })
+        .parentId(function(d) { return d.directAncestorCode; })
+        (directAncestors);
+
+    root.eachBefore(function(d){
+        d.name = d.data.Eesnimi;
+        d.bio = "<p>" + d.data.dob + (d.data.dod !=="" ? " - " + d.data.dod : "") + "</p>";
+    });
+
+    debugger;
+
+    drawTree(root);
+
+});
+
+function drawTree(treeData) {console.log(treeData);
 
     var vertical = false;
 
@@ -208,10 +240,13 @@ function drawTree(treeData) {
             }
         };
         childCount(0, root);
-        var newHeight = d3.max(levelWidth) * 70; // 70 pixels per line  
+        var newHeight = d3.max(levelWidth) * 50; // 70 pixels per line
         tree = tree.size([newHeight, viewerWidth]);
 
         // Compute the new tree layout.
+
+        var layerWidth = 200;
+
         var nodes = tree.nodes(root).reverse(),
             links = tree.links(nodes);
 
@@ -220,9 +255,9 @@ function drawTree(treeData) {
           if (d.depth > maxDepth)
             maxDepth = d.depth;
           if (vertical)
-            d.y = (d.depth * (maxLabelLength * 5)); 
+            d.y = d.depth * layerWidth;
           else
-            d.y = (d.depth * (maxLabelLength * 8)); 
+            d.y = d.depth * layerWidth;
         });
 
         // Update the nodes…
@@ -305,7 +340,7 @@ function drawTree(treeData) {
             return "images/placeholder.png";
         });
         node.select('image').attr("title", function(d) {
-          return "<strong>" + englishName(d) + "</strong>. " + (d.bio ? d.bio : "");
+          return "<strong>" + englishName(d) + "</strong>" + (d.bio ? d.bio : "");
         });
 
         // Update the text to reflect whether node has children or not.

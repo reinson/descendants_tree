@@ -1,3 +1,5 @@
+Forked from https://github.com/Yakubovich/descendant_tree
+
 Draws a family tree in a descendant chart format (all descendants of an individual).
 
 Click on a node to expand/collapse all descendants. 
