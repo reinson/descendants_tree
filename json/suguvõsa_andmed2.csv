@@ -1,4 +1,4 @@
-kood,põlvkond,Eesnimi,Sugu,Sünnikuupäev,Surmakuupäev,Isa kood,Ema kood
+kood,põlvkond,Eesnimi,Sugu,dob,dod,Isa kood,Ema kood
 j1,0,Jaan,M,10.5.1867,,,
 k1,1,Karl,M,15.2.1890,13.2.1920,j1,j2
 hr1,1,Hilda-Rosine,N,1920,1997,j1,j3
